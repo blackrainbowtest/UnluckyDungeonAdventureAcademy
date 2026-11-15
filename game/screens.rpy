@@ -372,6 +372,7 @@ screen main_menu():
     imagebutton:
         idle "gui/main_menu/continue_idle.png"
         hover "gui/main_menu/continue_hover.png"
+        insensitive "gui/main_menu/continue_insensitive.png"
         xpos 1652
         ypos 290
         xsize 940
@@ -1210,36 +1211,70 @@ style help_label_text:
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#confirm
 
+
 screen confirm(message, yes_action, no_action):
 
-    ## Гарантирует, что другие экраны будут недоступны, пока показан этот экран.
+    ## Блокируем остальные экраны.
     modal True
 
     zorder 200
 
     style_prefix "confirm"
 
+    ## Стандартное затемнение фона.
     add "gui/overlay/confirm.png"
 
-    frame:
+    ## Наша панель 1200x540 по центру экрана.
+    fixed:
+        xalign 0.5
+        yalign 0.5
+        xsize 1200
+        ysize 540
 
-        vbox:
-            xalign .5
-            yalign .5
-            spacing 60
+        add "gui/confirm/confirm_panel.png"
 
-            label _(message):
-                style "confirm_prompt"
+        ## Текст вопроса.
+        text _(message):
+            xcenter 600
+            ypos 185  # Было 125
+            xsize 1050
+            text_align 0.5
+            size 42
+            color "#FFFFFF"
+
+        ## Кнопка "Да".
+        button:
+            xpos 131
+            ypos 351
+            xsize 424
+            ysize 140
+            background "gui/confirm/button_idle.png"
+            hover_background "gui/confirm/button_hover.png"
+            action yes_action
+
+            text _("Да"):
                 xalign 0.5
+                yalign 0.5
+                size 48
+                color "#FFFFFF"
 
-            hbox:
+        ## Кнопка "Нет".
+        button:
+            xpos 644
+            ypos 351
+            xsize 424
+            ysize 140
+            background "gui/confirm/button_idle.png"
+            hover_background "gui/confirm/button_hover.png"
+            action no_action
+
+            text _("Нет"):
                 xalign 0.5
-                spacing 200
+                yalign 0.5
+                size 48
+                color "#FFFFFF"
 
-                textbutton _("Да") action yes_action
-                textbutton _("Нет") action no_action
-
-    ## Правый клик и esc, как ответ "Нет".
+    ## Правый клик и Esc = "Нет".
     key "game_menu" action no_action
 
 
@@ -1248,6 +1283,7 @@ style confirm_prompt is gui_prompt
 style confirm_prompt_text is gui_prompt_text
 style confirm_button is gui_medium_button
 style confirm_button_text is gui_medium_button_text
+
 
 style confirm_frame:
     background Frame([ "gui/confirm_frame.png", "gui/frame.png"], gui.confirm_frame_borders, tile=gui.frame_tile)
