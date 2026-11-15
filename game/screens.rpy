@@ -361,6 +361,7 @@ screen main_menu():
     # 1. Новая игра.
     imagebutton:
         idle "gui/main_menu/new_game_idle.png"
+        hover "gui/main_menu/new_game_hover.png"
         xpos 1652
         ypos 50
         xsize 940
@@ -370,6 +371,7 @@ screen main_menu():
     # 2. Продолжить игру.
     imagebutton:
         idle "gui/main_menu/continue_idle.png"
+        hover "gui/main_menu/continue_hover.png"
         xpos 1652
         ypos 290
         xsize 940
@@ -385,6 +387,7 @@ screen main_menu():
     # 3. Загрузить сохранение.
     imagebutton:
         idle "gui/main_menu/load_idle.png"
+        hover "gui/main_menu/load_hover.png"
         xpos 1652
         ypos 530
         xsize 940
@@ -394,6 +397,7 @@ screen main_menu():
     # 4. Настройки.
     imagebutton:
         idle "gui/main_menu/settings_idle.png"
+        hover "gui/main_menu/settings_hover.png"
         xpos 1652
         ypos 770
         xsize 940
@@ -403,6 +407,7 @@ screen main_menu():
     # 5. Помощь.
     imagebutton:
         idle "gui/main_menu/help_idle.png"
+        hover "gui/main_menu/help_hover.png"
         xpos 1652
         ypos 1084
         xsize 236
@@ -412,6 +417,7 @@ screen main_menu():
     # 6. Об игре.
     imagebutton:
         idle "gui/main_menu/about_idle.png"
+        hover "gui/main_menu/about_hover.png"
         xpos 1972
         ypos 1084
         xsize 236
@@ -421,6 +427,7 @@ screen main_menu():
     # 7. Выход из игры.
     imagebutton:
         idle "gui/main_menu/exit_idle.png"
+        hover "gui/main_menu/exit_hover.png"
         xpos 2291
         ypos 1084
         xsize 236
