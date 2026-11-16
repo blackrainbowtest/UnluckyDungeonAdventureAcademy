@@ -287,50 +287,159 @@ style quick_button_text:
 ## Этот экран включает в себя главное и игровое меню, и обеспечивает навигацию к
 ## другим меню и к началу игры.
 
+
 screen navigation():
 
-    vbox:
-        style_prefix "navigation"
+    # Кнопки навигации внутренних меню.
+    # Размер каждой кнопки: 300x100.
+    # Координаты относительно экрана 2560x1440.
 
-        xpos gui.navigation_xpos
-        yalign 0.5
+    fixed:
 
-        spacing gui.navigation_spacing
+        # 1. Начать / Сохранить
+        button:
+            xpos 104
+            ypos 448
+            xsize 300
+            ysize 100
 
+            background "gui/game_menu/nav_button_idle.png"
+            hover_background "gui/game_menu/nav_button_hover.png"
+
+            if main_menu:
+                action Start()
+                text _("Начать"):
+                    xalign 0.5
+                    yalign 0.5
+                    size 35
+            else:
+                action ShowMenu("save")
+                text _("Сохранить"):
+                    xalign 0.5
+                    yalign 0.5
+                    size 35
+
+        # 2. Загрузить
+        button:
+            xpos 104
+            ypos 548
+            xsize 300
+            ysize 100
+
+            background "gui/game_menu/nav_button_idle.png"
+            hover_background "gui/game_menu/nav_button_hover.png"
+
+            action ShowMenu("load")
+
+            text _("Загрузить"):
+                xalign 0.5
+                yalign 0.5
+                size 35
+
+        # 3. Настройки
+        button:
+            xpos 104
+            ypos 648
+            xsize 300
+            ysize 100
+
+            background "gui/game_menu/nav_button_idle.png"
+            hover_background "gui/game_menu/nav_button_hover.png"
+
+            action ShowMenu("preferences")
+
+            text _("Настройки"):
+                xalign 0.5
+                yalign 0.5
+                size 35
+
+        # 4. Об игре / История
+        button:
+            xpos 104
+            ypos 748
+            xsize 300
+            ysize 100
+
+            background "gui/game_menu/nav_button_idle.png"
+            hover_background "gui/game_menu/nav_button_hover.png"
+
+            if main_menu:
+                action ShowMenu("about")
+                text _("Об игре"):
+                    xalign 0.5
+                    yalign 0.5
+                    size 35
+            else:
+                action ShowMenu("history")
+                text _("История"):
+                    xalign 0.5
+                    yalign 0.5
+                    size 35
+
+        # 5. Помощь
+        if renpy.variant("pc") or (renpy.variant("web") and not renpy.variant("mobile")):
+
+            button:
+                xpos 104
+                ypos 848
+                xsize 300
+                ysize 100
+
+                background "gui/game_menu/nav_button_idle.png"
+                hover_background "gui/game_menu/nav_button_hover.png"
+
+                action ShowMenu("help")
+
+                text _("Помощь"):
+                    xalign 0.5
+                    yalign 0.5
+                    size 35
+
+        # 6. Выход / Главное меню
         if main_menu:
 
-            textbutton _("Начать") action Start()
+            if renpy.variant("pc"):
+
+                button:
+                    xpos 104
+                    ypos 948
+                    xsize 300
+                    ysize 100
+
+                    background "gui/game_menu/nav_button_idle.png"
+                    hover_background "gui/game_menu/nav_button_hover.png"
+
+                    action Quit(confirm=True)
+
+                    text _("Выход"):
+                        xalign 0.5
+                        yalign 0.5
+                        size 35
 
         else:
 
-            textbutton _("История") action ShowMenu("history")
+            button:
+                xpos 104
+                ypos 948
+                xsize 300
+                ysize 100
 
-            textbutton _("Сохранить") action ShowMenu("save")
+                background "gui/game_menu/nav_button_idle.png"
+                hover_background "gui/game_menu/nav_button_hover.png"
 
-        textbutton _("Загрузить") action ShowMenu("load")
+                if _in_replay:
+                    action EndReplay(confirm=True)
+                    text _("Завершить повтор"):
+                        xalign 0.5
+                        yalign 0.5
+                        size 30
+                else:
+                    action MainMenu()
+                    text _("Главное меню"):
+                        xalign 0.5
+                        yalign 0.5
+                        size 30
 
-        textbutton _("Настройки") action ShowMenu("preferences")
-
-        if _in_replay:
-
-            textbutton _("Завершить повтор") action EndReplay(confirm=True)
-
-        elif not main_menu:
-
-            textbutton _("Главное меню") action MainMenu()
-
-        textbutton _("Об игре") action ShowMenu("about")
-
-        if renpy.variant("pc") or (renpy.variant("web") and not renpy.variant("mobile")):
-
-            ## Помощь не необходима и не относится к мобильным устройствам.
-            textbutton _("Помощь") action ShowMenu("help")
-
-        if renpy.variant("pc"):
-
-            ## Кнопка выхода блокирована в iOS и не нужна на Android и в веб-
-            ## версии.
-            textbutton _("Выход") action Quit(confirm=not main_menu)
 
 
 style navigation_button is gui_button
@@ -479,10 +588,7 @@ screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
 
     style_prefix "game_menu"
 
-    if main_menu:
-        add gui.main_menu_background
-    else:
-        add gui.game_menu_background
+    add "gui/game_menu/background.png"
 
     frame:
         style "game_menu_outer_frame"
@@ -535,12 +641,43 @@ screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
 
     use navigation
 
-    textbutton _("Вернуться"):
-        style "return_button"
+    # Старая кнопка:
+    # textbutton _("Вернуться"):
+    #     style "return_button"
+    #     action Return()
+
+    # Новая круглая кнопка.
+    button:
+        xpos 104
+        ypos 1140
+        xsize 300
+        ysize 300
+
+        background "gui/game_menu/nav_return_button_idle.png"
+        hover_background "gui/game_menu/nav_return_button_hover.png"
 
         action Return()
 
-    label title
+    # Старый заголовок:
+    # label title
+
+    # Рамка заголовка и текст по центру.
+    fixed:
+        xpos 20
+        ypos 30
+        xsize 800
+        ysize 250
+
+        add "gui/game_menu/menu_title_frame.png":
+            xsize 800
+            ysize 250
+
+        text title:
+            xalign 0.5
+            yalign 0.5
+            size 48
+            color "#F5E6C8"
+            text_align 0.5
 
     if main_menu:
         key "game_menu" action ShowMenu("main_menu")
@@ -563,7 +700,11 @@ style game_menu_outer_frame:
     bottom_padding 60
     top_padding 240
 
-    background "gui/overlay/game_menu.png"
+    # Старое наложение:
+    # background "gui/overlay/game_menu.png"
+
+    # Убираем стандартное наложение:
+    background None
 
 style game_menu_navigation_frame:
     xsize 560
