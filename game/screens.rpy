@@ -1057,23 +1057,44 @@ style radio_vbox:
 
 style radio_button:
     properties gui.button_properties("radio_button")
-    foreground "gui/button/radio_[prefix_]foreground.png"
+
+    # Было:
+    # foreground "gui/button/radio_[prefix_]foreground.png"
+
+    # Новое оформление:
+    foreground "gui/preferences/radio_idle.png"
+    selected_foreground "gui/preferences/radio_selected.png"
 
 style radio_button_text:
     properties gui.text_properties("radio_button")
+
+    xoffset 30
 
 style check_vbox:
     spacing gui.pref_button_spacing
 
 style check_button:
     properties gui.button_properties("check_button")
-    foreground "gui/button/check_[prefix_]foreground.png"
+
+    # Было:
+    # foreground "gui/button/check_[prefix_]foreground.png"
+
+    # Новое оформление:
+    foreground "gui/preferences/checkbox_idle.png"
+    selected_foreground "gui/preferences/checkbox_selected.png"
 
 style check_button_text:
     properties gui.text_properties("check_button")
 
+    xoffset 30
+
 style slider_slider:
     xsize 700
+    
+    # Новое оформление:
+    left_bar "gui/preferences/slider_fill.png"
+    right_bar "gui/preferences/slider_track.png"
+    thumb "gui/preferences/slider_thumb.png"
 
 style slider_button:
     properties gui.button_properties("slider_button")
