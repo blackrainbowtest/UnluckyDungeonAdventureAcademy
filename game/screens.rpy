@@ -853,8 +853,16 @@ screen file_slots(title):
                     button:
                         action FileAction(slot)
 
+                        # ПК: собственный фон только для пустых карточек, включая наведение.
+                        if not renpy.variant("small") and not FileLoadable(slot):
+                            background "gui/file_slots/empty_slot_idle.png"
+                            hover_background "gui/file_slots/empty_slot_hover.png"
+
                         # Было: has vbox. Fixed позволяет привязать пустую подпись к низу карточки.
-                        has fixed
+                        # Было: has fixed (без явного размера внутренней области).
+                        has fixed:
+                            # Размер карточки минус padding по 20 px с каждой стороны.
+                            xysize ((gui.slot_button_width - 40, gui.slot_button_height - 40) if renpy.variant("small") else (460, 310))
 
                         vbox:
                             # Было: add FileScreenshot(slot) xalign 0.5
@@ -878,7 +886,7 @@ screen file_slots(title):
                                 xalign 0.5
                                 yalign 1.0
                                 # Нижний padding карточки 20 + смещение 30 = 50 px.
-                                yoffset -30
+                                yoffset -40
                                 color "#FFF1C1"
                                 hover_color "#FFF1C1"
 
