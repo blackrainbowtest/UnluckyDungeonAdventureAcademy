@@ -818,23 +818,31 @@ screen file_slots(title):
 
             ## Номер страницы, который может быть изменён посредством клика на
             ## кнопку.
-            button:
-                style "page_label"
+            # button:
+            #     style "page_label"
 
-                key_events True
-                xalign 0.5
-                action page_name_value.Toggle()
+            #     key_events True
+            #     xalign 0.5
+            #     action page_name_value.Toggle()
 
-                input:
-                    style "page_label_text"
-                    value page_name_value
+            #     input:
+            #         style "page_label_text"
+            #         value page_name_value
 
             ## Таблица слотов.
             grid gui.file_slot_cols gui.file_slot_rows:
                 style_prefix "slot"
 
-                xalign 0.5
-                yalign 0.5
+                # Было: центрирование во всех вариантах.
+                # xalign 0.5
+                # yalign 0.5
+                # ПК: начало контейнера (640, 260), сетка на экране (698, 250).
+                if renpy.variant("small"):
+                    xalign 0.5
+                    yalign 0.5
+                else:
+                    xpos 58
+                    ypos -10
 
                 spacing gui.slot_spacing
 
@@ -845,15 +853,34 @@ screen file_slots(title):
                     button:
                         action FileAction(slot)
 
-                        has vbox
+                        # Было: has vbox. Fixed позволяет привязать пустую подпись к низу карточки.
+                        has fixed
 
-                        add FileScreenshot(slot) xalign 0.5
+                        vbox:
+                            # Было: add FileScreenshot(slot) xalign 0.5
+                            # ПК: миниатюра 16:9; мобильный размер остаётся прежним.
+                            add FileScreenshot(slot):
+                                xalign 0.5
+                                if not renpy.variant("small"):
+                                    xysize (400, 225)
 
-                        text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
-                            style "slot_time_text"
+                            # Для заполненных слотов сохраняется последовательная компоновка.
+                            if FileLoadable(slot):
+                                text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
+                                    style "slot_time_text"
 
-                        text FileSaveName(slot):
-                            style "slot_name_text"
+                            text FileSaveName(slot):
+                                style "slot_name_text"
+
+                        if not FileLoadable(slot):
+                            text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
+                                style "slot_time_text"
+                                xalign 0.5
+                                yalign 1.0
+                                # Нижний padding карточки 20 + смещение 30 = 50 px.
+                                yoffset -30
+                                color "#FFF1C1"
+                                hover_color "#FFF1C1"
 
                         key "save_delete" action FileDelete(slot)
 
@@ -885,15 +912,15 @@ screen file_slots(title):
                     textbutton _(">") action FilePageNext()
                     key "save_page_next" action FilePageNext()
 
-                if config.has_sync:
-                    if CurrentScreenName() == "save":
-                        textbutton _("Загрузить Sync"):
-                            action UploadSync()
-                            xalign 0.5
-                    else:
-                        textbutton _("Скачать Sync"):
-                            action DownloadSync()
-                            xalign 0.5
+                # if config.has_sync:
+                #     if CurrentScreenName() == "save":
+                #         textbutton _("Загрузить Sync"):
+                #             action UploadSync()
+                #             xalign 0.5
+                #     else:
+                #         textbutton _("Скачать Sync"):
+                #             action DownloadSync()
+                #             xalign 0.5
 
 
 style page_label is gui_label
@@ -903,6 +930,7 @@ style page_button_text is gui_button_text
 
 style slot_button is gui_button
 style slot_button_text is gui_button_text
+
 style slot_time_text is slot_button_text
 style slot_name_text is slot_button_text
 
@@ -924,9 +952,24 @@ style page_button_text:
 
 style slot_button:
     properties gui.button_properties("slot_button")
+    # Общие gui.slot_button_width/height сохранены для мобильного варианта.
+    xsize (gui.slot_button_width if renpy.variant("small") else 500)
+    ysize (gui.slot_button_height if renpy.variant("small") else 350)
 
 style slot_button_text:
     properties gui.text_properties("slot_button")
+    color "#FFF1C1"
+    hover_color "#FFFFFF"
+    # ПК: место для двух строк даты и строки названия под миниатюрой.
+    size (gui.slot_button_text_size if renpy.variant("small") else 22)
+
+style slot_time_text:
+    color "#FFF1C1"
+    yoffset -15
+
+style slot_name_text:
+    color "#FFF1C1"
+    yoffset -15
 
 
 ## Экран настроек ##############################################################
