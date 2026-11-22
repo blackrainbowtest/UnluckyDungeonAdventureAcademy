@@ -853,8 +853,9 @@ screen file_slots(title):
                     button:
                         action FileAction(slot)
 
-                        # ПК: собственный фон только для пустых карточек, включая наведение.
-                        if not renpy.variant("small") and not FileLoadable(slot):
+                        # Было: if not renpy.variant("small") and not FileLoadable(slot):
+                        # ПК: одинаковый декоративный фон пустых и заполненных карточек.
+                        if not renpy.variant("small"):
                             background "gui/file_slots/empty_slot_idle.png"
                             hover_background "gui/file_slots/empty_slot_hover.png"
 
@@ -864,21 +865,41 @@ screen file_slots(title):
                             # Размер карточки минус padding по 20 px с каждой стороны.
                             xysize ((gui.slot_button_width - 40, gui.slot_button_height - 40) if renpy.variant("small") else (460, 310))
 
-                        vbox:
-                            # Было: add FileScreenshot(slot) xalign 0.5
-                            # ПК: миниатюра 16:9; мобильный размер остаётся прежним.
+                        if not renpy.variant("small") and FileLoadable(slot):
+                            # ПК: скриншот (50, 20) относительно карточки, размер 400x225.
                             add FileScreenshot(slot):
                                 xalign 0.5
-                                if not renpy.variant("small"):
-                                    xysize (400, 225)
+                                ypos 0
+                                xysize (400, 225)
 
-                            # Для заполненных слотов сохраняется последовательная компоновка.
-                            if FileLoadable(slot):
-                                text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
-                                    style "slot_time_text"
+                            # Здесь впоследствии можно добавить прозрачную рамку поверх скриншота.
+                            # Дата отдельно от миниатюры: нижняя граница на Y=290 карточки.
+                            text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
+                                style "slot_time_text"
+                                xalign 0.5
+                                xsize 440
+                                textalign 0.5
+                                yalign 1.0
+                                yoffset -40
+                                size 18
+                                color "#FFF1C1"
+                                hover_color "#FFF1C1"
+                        else:
+                            # Прежняя компоновка пустых слотов и мобильного варианта.
+                            vbox:
+                                # Было: add FileScreenshot(slot) xalign 0.5
+                                add FileScreenshot(slot):
+                                    xalign 0.5
+                                    if not renpy.variant("small"):
+                                        xysize (400, 225)
 
-                            text FileSaveName(slot):
-                                style "slot_name_text"
+                                if FileLoadable(slot):
+                                    text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
+                                        style "slot_time_text"
+
+                                # На ПК заполненный слот показывает только дату и время.
+                                text FileSaveName(slot):
+                                    style "slot_name_text"
 
                         if not FileLoadable(slot):
                             text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
@@ -899,10 +920,15 @@ screen file_slots(title):
                 xalign 0.5
                 yalign 1.0
 
+                xoffset -80
+                yoffset -250
+
                 hbox:
                     xalign 0.5
 
-                    spacing gui.page_spacing
+                    # Было: spacing gui.page_spacing
+                    # 13 кнопок по 120 px + 12 промежутков по 12 px = 1704 px.
+                    spacing 12
 
                     textbutton _("<") action FilePagePrevious()
                     key "save_page_prev" action FilePagePrevious()
@@ -954,9 +980,34 @@ style page_label_text:
 
 style page_button:
     properties gui.button_properties("page_button")
+    # Полный PNG без Frame: сохраняем цветы, пропорции и прозрачность.
+    xysize (120, 120)
+    padding (0, 0)
+    idle_background "gui/file_slots/page_button_idle.png"
+    hover_background "gui/file_slots/page_button_hover.png"
+    insensitive_background "gui/file_slots/page_button_insensitive.png"
+
+    # selected_idle_background "gui/file_slots/page_button_idle.png"
+    # selected_hover_background "gui/file_slots/page_button_hover.png"
+
+    selected_idle_background "gui/file_slots/page_button_select.png"
+    selected_hover_background "gui/file_slots/page_button_select.png"
+
+    selected_insensitive_background "gui/file_slots/page_button_insensitive.png"
+
 
 style page_button_text:
     properties gui.text_properties("page_button")
+    size 44
+    xalign 0.5
+    yalign 0.5
+    textalign 0.5
+    color "#FFF1C1"
+    hover_color "#FFFFFF"
+    insensitive_color "#A99AAB"
+    # FilePage.get_selected() отмечает текущую страницу; это не insensitive.
+    selected_idle_color "#FFD166"
+    selected_hover_color "#FFD166"
 
 style slot_button:
     properties gui.button_properties("slot_button")
