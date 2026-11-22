@@ -484,6 +484,7 @@ screen main_menu():
     add "gui/main_menu/background.png"
 
     # Плеер в свободном левом нижнем углу; существующие кнопки начинаются с X=1652.
+    ## Music panel (main_menu)
     hbox:
         xpos 60
         yalign 1.0
@@ -491,10 +492,23 @@ screen main_menu():
         spacing 12
         style_prefix "menu_music"
 
-        textbutton "◀◀" action Function(menu_music_step, -1)
-        textbutton ("▶" if renpy.music.get_pause(channel="music") or renpy.music.get_playing(channel="music") not in menu_music_tracks else "❚❚"):
+        # Было: textbutton "◀◀" action Function(menu_music_step, -1)
+        button:
+            action Function(menu_music_step, -1)
+            add "gui/music_player/previous.png" align (0.5, 0.5)
+        # Было: textbutton с символами ▶ / ❚❚.
+        button:
             action Function(menu_music_toggle)
-        textbutton "▶▶" action Function(menu_music_step, 1)
+            add ("gui/music_player/play.png" if renpy.music.get_pause(channel="music") or renpy.music.get_playing(channel="music") not in menu_music_tracks else "gui/music_player/pause.png"):
+                align (0.5, 0.5)
+        # Было: textbutton "▶▶" action Function(menu_music_step, 1)
+        button:
+            action Function(menu_music_step, 1)
+            add "gui/music_player/next.png" align (0.5, 0.5)
+
+## TODO: add current music name under the music navbar
+## TODO: add music slider bar (color: #88187a)
+## TODO: add music slider thumb (image: preferences\slider_thumb.png)
 
     # 1. Новая игра.
     imagebutton:
