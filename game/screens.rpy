@@ -940,7 +940,20 @@ screen file_slots(title):
                         textbutton _("{#quick_page}Б") action FilePage("quick")
 
                     ## range(1, 10) задаёт диапазон значений от 1 до 9.
-                    for page in range(1, 10):
+                    # for page in range(1, 10):
+                    #     textbutton "[page]" action FilePage(page)
+
+                    # Текущая страница сохранений.
+                    $ current_page = FileCurrentPage()
+
+                    # Для автоматических и быстрых сохранений показываем первую группу.
+                    $ page_number = int(current_page) if str(current_page).isdigit() else 1
+
+                    # Вычисляем начало группы из 9 страниц.
+                    $ first_page = ((page_number - 1) // 9) * 9 + 1
+
+                    # Отображаем 9 последовательных страниц.
+                    for page in range(first_page, first_page + 9):
                         textbutton "[page]" action FilePage(page)
 
                     textbutton _(">") action FilePageNext()
