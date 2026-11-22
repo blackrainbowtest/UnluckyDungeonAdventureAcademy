@@ -460,12 +460,41 @@ style navigation_button_text:
 ## https://www.renpy.org/doc/html/screen_special.html#main-menu
 
 
+init python:
+    def menu_music_step(direction):
+        # Источник состояния — реальный канал, включая автоматическую смену трека.
+        current = renpy.music.get_playing(channel="music")
+        index = menu_music_tracks.index(current) if current in menu_music_tracks else 0
+        index = (index + direction) % len(menu_music_tracks)
+        tracks = menu_music_tracks[index:] + menu_music_tracks[:index]
+        renpy.music.play(tracks, channel="music", loop=True, fadeout=0)
+
+    def menu_music_toggle():
+        if renpy.music.get_playing(channel="music") in menu_music_tracks:
+            renpy.music.set_pause(not renpy.music.get_pause(channel="music"), channel="music")
+        else:
+            renpy.music.play(menu_music_tracks, channel="music", loop=True, fadeout=0)
+
+
 screen main_menu():
 
     tag menu
 
     # Основной фон академии.
     add "gui/main_menu/background.png"
+
+    # Плеер в свободном левом нижнем углу; существующие кнопки начинаются с X=1652.
+    hbox:
+        xpos 60
+        yalign 1.0
+        yoffset -60
+        spacing 12
+        style_prefix "menu_music"
+
+        textbutton "◀◀" action Function(menu_music_step, -1)
+        textbutton ("▶" if renpy.music.get_pause(channel="music") or renpy.music.get_playing(channel="music") not in menu_music_tracks else "❚❚"):
+            action Function(menu_music_toggle)
+        textbutton "▶▶" action Function(menu_music_step, 1)
 
     # 1. Новая игра.
     imagebutton:
@@ -545,6 +574,17 @@ screen main_menu():
         action Quit(confirm=True)
 
 
+
+style menu_music_button is gui_button:
+    xysize (128, 104)
+    padding (0, 0)
+
+style menu_music_button_text is gui_button_text:
+    size 36
+    xalign 0.5
+    yalign 0.5
+    color "#E8CA63"
+    hover_color "#FFDCDC"
 
 style main_menu_frame is empty
 style main_menu_vbox is vbox

@@ -63,6 +63,17 @@ define config.has_voice = True
 ## игры, если не будет остановлен, или не начнёт проигрываться другой аудиофайл.
 
 # define config.main_menu_music = "main-menu-theme.ogg"
+# Было: define config.main_menu_music = "audio/music/main_menu/menu_track_01.ogg"
+# Стандартный канал music циклически воспроизводит весь список.
+define menu_music_tracks = [
+    "audio/music/main_menu/menu_track_01.ogg",
+    "audio/music/main_menu/menu_track_02.ogg",
+    "audio/music/main_menu/menu_track_03.ogg",
+]
+define config.main_menu_music = menu_music_tracks
+## menu_track_01.ogg
+## menu_track_02.ogg
+## menu_track_03.ogg
 
 
 ## Переходы ####################################################################
