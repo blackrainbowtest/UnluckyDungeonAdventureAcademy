@@ -576,15 +576,26 @@ screen main_menu():
 
 
 style menu_music_button is gui_button:
-    xysize (128, 104)
+    # Было: xysize (128, 104)
+    xysize (120, 120)
     padding (0, 0)
+    idle_background "gui/music_player/page_button_idle.png"
+    hover_background "gui/music_player/page_button_hover.png"
+    insensitive_background "gui/music_player/page_button_insensitive.png"
 
 style menu_music_button_text is gui_button_text:
     size 36
     xalign 0.5
     yalign 0.5
-    color "#E8CA63"
-    hover_color "#FFDCDC"
+    # Было: color "#E8CA63"
+    # Было: hover_color "#FFDCDC"
+    color "#FFF1C1"
+    hover_color "#FFF1C1"
+    insensitive_color "#FFF1C1"
+
+## Button UI x24 y26  w72 h72
+
+
 
 style main_menu_frame is empty
 style main_menu_vbox is vbox
