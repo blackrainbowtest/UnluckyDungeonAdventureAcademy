@@ -461,16 +461,67 @@ style navigation_button_text:
 
 
 init python:
+    def menu_music_current():
+        current = renpy.music.get_playing(channel="music")
+        # Ren'Py возвращает и спецификацию запуска после перемотки.
+        if current and current.startswith("<"):
+            current = current.partition(">")[2]
+        return current
+
+    def menu_music_title():
+        current = menu_music_current()
+        title = current.rsplit("/", 1)[-1].rsplit(".", 1)[0] if current else ""
+        # Не выпускаем длинное имя за нижнюю границу экрана.
+        return title if len(title) <= 28 else title[:27] + "…"
+
+    def menu_music_seek(fraction):
+        current = menu_music_current()
+        duration = renpy.music.get_duration(channel="music")
+        if current not in menu_music_tracks or not duration:
+            return
+        position = min(max(fraction, 0.0) * duration, max(duration - 0.05, 0.0))
+        index = menu_music_tracks.index(current)
+        following = menu_music_tracks[index + 1:] + menu_music_tracks[:index + 1]
+        # Только первый проход начинается с выбранной позиции; следующие — целиком.
+        renpy.music.play("<from {:.6f}>{}".format(position, current), channel="music", loop=False, fadeout=0)
+        renpy.music.queue(following, channel="music", loop=True, clear_queue=False)
+
+    class MenuMusicSeekValue(BarValue):
+        def __init__(self):
+            self.updating = False
+            self.adjustment = None
+
+        def changed(self, value):
+            if not self.updating:
+                menu_music_seek(value)
+
+        def get_adjustment(self):
+            self.adjustment = renpy.ui.adjustment(range=1.0, value=0.0, changed=self.changed)
+            return self.adjustment
+
+        def periodic(self, st):
+            duration = renpy.music.get_duration(channel="music")
+            position = renpy.music.get_pos(channel="music")
+            if position is not None and duration:
+                self.updating = True
+                try:
+                    self.adjustment.change(min(max(position / duration, 0.0), 1.0))
+                finally:
+                    self.updating = False
+            return 0.1
+
     def menu_music_step(direction):
         # Источник состояния — реальный канал, включая автоматическую смену трека.
-        current = renpy.music.get_playing(channel="music")
+        # Было: current = renpy.music.get_playing(channel="music")
+        current = menu_music_current()
         index = menu_music_tracks.index(current) if current in menu_music_tracks else 0
         index = (index + direction) % len(menu_music_tracks)
         tracks = menu_music_tracks[index:] + menu_music_tracks[:index]
         renpy.music.play(tracks, channel="music", loop=True, fadeout=0)
 
     def menu_music_toggle():
-        if renpy.music.get_playing(channel="music") in menu_music_tracks:
+        # Было: if renpy.music.get_playing(channel="music") in menu_music_tracks:
+        if menu_music_current() in menu_music_tracks:
             renpy.music.set_pause(not renpy.music.get_pause(channel="music"), channel="music")
         else:
             renpy.music.play(menu_music_tracks, channel="music", loop=True, fadeout=0)
@@ -483,6 +534,28 @@ screen main_menu():
     # Основной фон академии.
     add "gui/main_menu/background.png"
 
+    default music_seek_value = MenuMusicSeekValue()
+
+    # Над неизменёнными кнопками (их верхняя граница Y=1260).
+    bar:
+        style "menu_music_seek"
+        xpos 60
+        # Было: ypos 1212. Сохраняем промежуток 16 px до кнопок при высоте 70.
+        ypos 1174
+        value music_seek_value
+
+    # Обновляем название и состояние после автоматического перехода к следующей песне.
+    timer 0.25 repeat True action Function(renpy.restart_interaction)
+
+    text menu_music_title():
+        xpos 60
+        ypos 1384
+        xsize 384
+        textalign 0.5
+        layout "subtitle"
+        size 22
+        color "#FFF1C1"
+
     # Плеер в свободном левом нижнем углу; существующие кнопки начинаются с X=1652.
     ## Music panel (main_menu)
     hbox:
@@ -492,23 +565,19 @@ screen main_menu():
         spacing 12
         style_prefix "menu_music"
 
-        # Было: textbutton "◀◀" action Function(menu_music_step, -1)
         button:
             action Function(menu_music_step, -1)
             add "gui/music_player/previous.png" align (0.5, 0.5)
-        # Было: textbutton с символами ▶ / ❚❚.
         button:
             action Function(menu_music_toggle)
-            add ("gui/music_player/play.png" if renpy.music.get_pause(channel="music") or renpy.music.get_playing(channel="music") not in menu_music_tracks else "gui/music_player/pause.png"):
+            # Та же проверка состояния с учётом спецификации перемотки <from ...>.
+            add ("gui/music_player/play.png" if renpy.music.get_pause(channel="music") or menu_music_current() not in menu_music_tracks else "gui/music_player/pause.png"):
                 align (0.5, 0.5)
-        # Было: textbutton "▶▶" action Function(menu_music_step, 1)
         button:
             action Function(menu_music_step, 1)
             add "gui/music_player/next.png" align (0.5, 0.5)
 
-## TODO: add current music name under the music navbar
-## TODO: add music slider bar (color: #88187a)
-## TODO: add music slider thumb (image: preferences\slider_thumb.png)
+
 
     # 1. Новая игра.
     imagebutton:
@@ -588,6 +657,17 @@ screen main_menu():
         action Quit(confirm=True)
 
 
+
+style menu_music_seek is bar:
+    # Было: xysize (384, 32)
+    xysize (384, 70)
+    bar_resizing True
+    # Было: полосы ysize=8, бегунок xysize=(32, 32).
+    left_bar Solid("#88187a", ysize=70)
+    right_bar Solid("#351331", ysize=70)
+    thumb Transform("gui/preferences/slider_thumb.png", xysize=(70, 70))
+    thumb_align 0.5
+    thumb_offset 0
 
 style menu_music_button is gui_button:
     # Было: xysize (128, 104)
