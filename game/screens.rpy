@@ -562,9 +562,11 @@ screen main_menu():
     # Над неизменёнными кнопками (их верхняя граница Y=1260).
     bar:
         style "menu_music_seek"
-        xpos 60
+        # Было: xpos 60; ПК сохраняет прежние координаты.
+        xpos (96 if renpy.variant("android") else 60)
         # Было: ypos 1174 при высоте 70. До кнопок остаётся 16 px.
-        ypos 1216
+        # Было: ypos 1216.
+        ypos (1020 if renpy.variant("android") else 1216)
         value music_seek_value
         released Function(music_seek_value.released)
 
@@ -572,34 +574,45 @@ screen main_menu():
     timer 0.25 repeat True action Function(renpy.restart_interaction)
 
     text menu_music_title():
-        xpos 60
-        ypos 1384
-        xsize 384
+        # Было: xpos 60, ypos 1384, xsize 384.
+        xpos (96 if renpy.variant("android") else 60)
+        ypos (1298 if renpy.variant("android") else 1384)
+        xsize (576 if renpy.variant("android") else 384)
         textalign 0.5
         layout "subtitle"
-        size 22
+        # Было: size 22.
+        size (32 if renpy.variant("android") else 22)
         color "#FFF1C1"
 
     # Плеер в свободном левом нижнем углу; существующие кнопки начинаются с X=1652.
     ## Music panel (main_menu)
     hbox:
-        xpos 60
+        # Было: xpos 60, yoffset -60, spacing 12.
+        xpos (96 if renpy.variant("android") else 60)
         yalign 1.0
-        yoffset -60
-        spacing 12
+        yoffset (-160 if renpy.variant("android") else -60)
+        spacing (18 if renpy.variant("android") else 12)
         style_prefix "menu_music"
 
         button:
             action Function(menu_music_step, -1)
-            add "gui/music_player/previous.png" align (0.5, 0.5)
+            add "gui/music_player/previous.png":
+                align (0.5, 0.5)
+                if renpy.variant("android"):
+                    xysize (180, 180)
         button:
             action Function(menu_music_toggle)
             # Та же проверка состояния с учётом спецификации перемотки <from ...>.
             add ("gui/music_player/play.png" if renpy.music.get_pause(channel="music") or menu_music_current() not in menu_music_tracks else "gui/music_player/pause.png"):
                 align (0.5, 0.5)
+                if renpy.variant("android"):
+                    xysize (180, 180)
         button:
             action Function(menu_music_step, 1)
-            add "gui/music_player/next.png" align (0.5, 0.5)
+            add "gui/music_player/next.png":
+                align (0.5, 0.5)
+                if renpy.variant("android"):
+                    xysize (180, 180)
 
 
 
@@ -2166,3 +2179,30 @@ style slider_vbox:
 style slider_slider:
     variant "small"
     xsize 1200
+
+# Только Android: собственные стили плеера больше нигде не используются.
+style menu_music_button:
+    variant "android"
+    xysize (180, 180)
+    idle_background Transform("gui/music_player/page_button_idle.png", xysize=(180, 180))
+    hover_background Transform("gui/music_player/page_button_hover.png", xysize=(180, 180))
+    insensitive_background Transform("gui/music_player/page_button_insensitive.png", xysize=(180, 180))
+
+style menu_music_seek:
+    variant "android"
+    xysize (576, 56)
+    left_bar Solid("#88187a", ysize=56)
+    right_bar Solid("#351331", ysize=56)
+    thumb Transform("gui/preferences/slider_thumb.png", xysize=(56, 56))
+
+# Полоса и диапазон движения получают одну ширину; PNG на ПК не меняются.
+style slider_slider:
+    variant "android"
+    xsize (1200 if renpy.variant("small") else 700)
+    ysize 70
+    left_bar Transform("gui/preferences/slider_fill.png", xysize=(1200 if renpy.variant("small") else 700, 70))
+    right_bar Transform("gui/preferences/slider_track.png", xysize=(1200 if renpy.variant("small") else 700, 70))
+    thumb Transform("gui/preferences/slider_thumb.png", xysize=(70, 70))
+    bar_resizing False
+    thumb_offset 0
+    thumb_align 0.5
