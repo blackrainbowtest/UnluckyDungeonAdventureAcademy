@@ -490,16 +490,37 @@ init python:
         def __init__(self):
             self.updating = False
             self.adjustment = None
+            self.dragging = False
 
         def changed(self, value):
-            if not self.updating:
-                menu_music_seek(value)
+            # Было: перемотка при каждом изменении значения.
+            if not self.updating and not self.dragging:
+                if menu_music_current() not in menu_music_tracks:
+                    return
+                self.was_paused = renpy.music.get_pause(channel="music")
+                self.dragging = True
+                renpy.music.set_pause(True, channel="music")
+
+        def released(self):
+            if self.dragging:
+                self.dragging = False
+                menu_music_seek(self.adjustment.value)
+
+        def cancel(self):
+            if self.dragging:
+                self.dragging = False
+                renpy.music.set_pause(self.was_paused, channel="music")
 
         def get_adjustment(self):
-            self.adjustment = renpy.ui.adjustment(range=1.0, value=0.0, changed=self.changed)
+            # Не сбрасываем позицию в ноль при обновлении экрана таймером.
+            # Было: создание нового adjustment при каждом вызове.
+            if self.adjustment is None:
+                self.adjustment = renpy.ui.adjustment(range=1.0, value=0.0, changed=self.changed)
             return self.adjustment
 
         def periodic(self, st):
+            if self.dragging:
+                return 0.1
             duration = renpy.music.get_duration(channel="music")
             position = renpy.music.get_pos(channel="music")
             if position is not None and duration:
@@ -535,14 +556,17 @@ screen main_menu():
     add "gui/main_menu/background.png"
 
     default music_seek_value = MenuMusicSeekValue()
+    on "hide" action Function(music_seek_value.cancel)
+    on "replaced" action Function(music_seek_value.cancel)
 
     # Над неизменёнными кнопками (их верхняя граница Y=1260).
     bar:
         style "menu_music_seek"
         xpos 60
-        # Было: ypos 1212. Сохраняем промежуток 16 px до кнопок при высоте 70.
-        ypos 1174
+        # Было: ypos 1174 при высоте 70. До кнопок остаётся 16 px.
+        ypos 1216
         value music_seek_value
+        released Function(music_seek_value.released)
 
     # Обновляем название и состояние после автоматического перехода к следующей песне.
     timer 0.25 repeat True action Function(renpy.restart_interaction)
@@ -660,12 +684,14 @@ screen main_menu():
 
 style menu_music_seek is bar:
     # Было: xysize (384, 32)
-    xysize (384, 70)
+    # Было: xysize (384, 70)
+    xysize (384, 28)
     bar_resizing True
     # Было: полосы ysize=8, бегунок xysize=(32, 32).
-    left_bar Solid("#88187a", ysize=70)
-    right_bar Solid("#351331", ysize=70)
-    thumb Transform("gui/preferences/slider_thumb.png", xysize=(70, 70))
+    # Было: полосы и бегунок высотой 70 px.
+    left_bar Solid("#88187a", ysize=28)
+    right_bar Solid("#351331", ysize=28)
+    thumb Transform("gui/preferences/slider_thumb.png", xysize=(28, 28))
     thumb_align 0.5
     thumb_offset 0
 
