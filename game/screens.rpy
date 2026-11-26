@@ -471,6 +471,11 @@ init python:
     def menu_music_title():
         current = menu_music_current()
         title = current.rsplit("/", 1)[-1].rsplit(".", 1)[0] if current else ""
+        title = {
+            "menu_track_01": _("Трек меню 01"),
+            "menu_track_02": _("Трек меню 02"),
+            "menu_track_03": _("Трек меню 03"),
+        }.get(title, title)
         # Не выпускаем длинное имя за нижнюю границу экрана.
         return title if len(title) <= 28 else title[:27] + "…"
 
@@ -1260,8 +1265,11 @@ screen preferences():
                     textbutton _("После выборов") action Preference("after choices", "toggle")
                     textbutton _("Переходов") action InvertSelected(Preference("transitions", "toggle"))
 
-                ## Дополнительные vbox'ы типа "radio_pref" или "check_pref"
-                ## могут быть добавлены сюда для добавления новых настроек.
+                vbox:
+                    style_prefix "radio"
+                    label _("Язык")
+                    textbutton "Русский" action Language(None)
+                    textbutton "English" action Language("english")
 
             null height (4 * gui.pref_spacing)
 
