@@ -11,12 +11,9 @@ define e = Character(_('Эйлин'), color="#c8ffc8")
 # Игра начинается здесь:
 label start:
 
-    scene bg room
+    call screen create_nyra
 
-    show eileen happy
-
-    e "Вы создали новую игру Ren'Py."
-
-    e "Добавьте сюжет, изображения и музыку и отправьте её в мир!"
+    if _return == "confirmed":
+        jump academy_courtyard
 
     return
