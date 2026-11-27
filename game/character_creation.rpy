@@ -74,6 +74,8 @@ screen create_nyra():
     modal True
 
     default open_category = None
+    default editing_name = False
+    $ touch_input = renpy.variant("touch")
 
     add "gui/character_creation/backgrounds/character_creation_bg.png"
 
@@ -121,13 +123,32 @@ screen create_nyra():
         anchor (0.5, 0.5)
         size 26
 
-    input:
-        pos (270, 758)
-        value DictInputValue(player, "name")
-        length 20
-        xysize (540, 52)
-        size 30
-        textalign 0.5
+    if not touch_input or editing_name:
+        input:
+            pos (270, 758)
+            value DictInputValue(player, "name")
+            length 20
+            xysize ((400 if touch_input else 540), 52)
+            size 30
+            textalign 0.5
+            action (SetScreenVariable("editing_name", False) if touch_input else None)
+    else:
+        textbutton (player["name"].replace("{", "{{").replace("[", "[[") or _("Введите имя")):
+            pos (240, 744)
+            xysize (600, 74)
+            text_size 30
+            text_align (0.5, 0.5)
+            action SetScreenVariable("editing_name", True)
+
+    if touch_input and editing_name:
+        textbutton _("Готово"):
+            pos (670, 744)
+            xysize (170, 74)
+            text_size 30
+            text_align (0.5, 0.5)
+            action SetScreenVariable("editing_name", False)
+
+        key ["game_menu", "K_AC_BACK"] action SetScreenVariable("editing_name", False)
 
     textbutton "−":
         pos (332, 830)
@@ -269,6 +290,12 @@ translate english strings:
 
     old "Имя героини"
     new "Character Name"
+
+    old "Введите имя"
+    new "Enter Name"
+
+    old "Готово"
+    new "Done"
 
     old "Если оставить поле пустым, будет использовано имя Найра."
     new "Leave the field empty to use the name Nyra."

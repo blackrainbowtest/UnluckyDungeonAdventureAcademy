@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 ## Инициализация
 ################################################################################
 
@@ -290,110 +290,111 @@ style quick_button_text:
 
 screen navigation():
 
-    # Кнопки навигации внутренних меню.
-    # Размер каждой кнопки: 300x100.
-    # Координаты относительно экрана 2560x1440.
+    $ phone_layout = renpy.variant("small")
+    $ button_size = (384, 128) if phone_layout else (300, 100)
+    $ button_x = 62 if phone_layout else 104
+    $ button_idle = "gui/game_menu/nav_button_idle.png"
+    $ button_hover = "gui/game_menu/nav_button_hover.png"
+
+    if phone_layout:
+        $ button_idle = Transform(button_idle, xysize=button_size)
+        $ button_hover = Transform(button_hover, xysize=button_size)
 
     fixed:
 
         # 1. Начать / Сохранить
         button:
-            xpos 104
-            ypos 448
-            xsize 300
-            ysize 100
+            xpos button_x
+            ypos (382 if phone_layout else 448)
+            xysize button_size
 
-            background "gui/game_menu/nav_button_idle.png"
-            hover_background "gui/game_menu/nav_button_hover.png"
+            background button_idle
+            hover_background button_hover
 
             if main_menu:
                 action Start()
                 text _("Начать"):
                     xalign 0.5
                     yalign 0.5
-                    size 35
+                    size (40 if phone_layout else 35)
             else:
                 action ShowMenu("save")
                 text _("Сохранить"):
                     xalign 0.5
                     yalign 0.5
-                    size 35
+                    size (40 if phone_layout else 35)
 
         # 2. Загрузить
         button:
-            xpos 104
-            ypos 548
-            xsize 300
-            ysize 100
+            xpos button_x
+            ypos (528 if phone_layout else 548)
+            xysize button_size
 
-            background "gui/game_menu/nav_button_idle.png"
-            hover_background "gui/game_menu/nav_button_hover.png"
+            background button_idle
+            hover_background button_hover
 
             action ShowMenu("load")
 
             text _("Загрузить"):
                 xalign 0.5
                 yalign 0.5
-                size 35
+                size (40 if phone_layout else 35)
 
         # 3. Настройки
         button:
-            xpos 104
-            ypos 648
-            xsize 300
-            ysize 100
+            xpos button_x
+            ypos (674 if phone_layout else 648)
+            xysize button_size
 
-            background "gui/game_menu/nav_button_idle.png"
-            hover_background "gui/game_menu/nav_button_hover.png"
+            background button_idle
+            hover_background button_hover
 
             action ShowMenu("preferences")
 
             text _("Настройки"):
                 xalign 0.5
                 yalign 0.5
-                size 35
+                size (40 if phone_layout else 35)
 
         # 4. Об игре / История
         button:
-            xpos 104
-            ypos 748
-            xsize 300
-            ysize 100
+            xpos button_x
+            ypos (820 if phone_layout else 748)
+            xysize button_size
 
-            background "gui/game_menu/nav_button_idle.png"
-            hover_background "gui/game_menu/nav_button_hover.png"
+            background button_idle
+            hover_background button_hover
 
             if main_menu:
                 action ShowMenu("about")
                 text _("Об игре"):
                     xalign 0.5
                     yalign 0.5
-                    size 35
+                    size (40 if phone_layout else 35)
             else:
                 action ShowMenu("history")
                 text _("История"):
                     xalign 0.5
                     yalign 0.5
-                    size 35
+                    size (40 if phone_layout else 35)
 
         # 5. Помощь
         if renpy.variant("pc") or (renpy.variant("web") and not renpy.variant("mobile")):
 
             button:
-                xpos 104
+                xpos button_x
                 ypos 848
-                xsize 300
-                ysize 100
+                xysize button_size
 
-                background "gui/game_menu/nav_button_idle.png"
-                hover_background "gui/game_menu/nav_button_hover.png"
+                background button_idle
+                hover_background button_hover
 
                 action ShowMenu("help")
 
                 text _("Помощь"):
                     xalign 0.5
                     yalign 0.5
-                    size 35
+                    size (40 if phone_layout else 35)
 
         # 6. Выход / Главное меню
         if main_menu:
@@ -401,44 +402,42 @@ screen navigation():
             if renpy.variant("pc"):
 
                 button:
-                    xpos 104
+                    xpos button_x
                     ypos 948
-                    xsize 300
-                    ysize 100
+                    xysize button_size
 
-                    background "gui/game_menu/nav_button_idle.png"
-                    hover_background "gui/game_menu/nav_button_hover.png"
+                    background button_idle
+                    hover_background button_hover
 
                     action Quit(confirm=True)
 
                     text _("Выход"):
                         xalign 0.5
                         yalign 0.5
-                        size 35
+                        size (40 if phone_layout else 35)
 
         else:
 
             button:
-                xpos 104
-                ypos 948
-                xsize 300
-                ysize 100
+                xpos button_x
+                ypos (966 if phone_layout else 948)
+                xysize button_size
 
-                background "gui/game_menu/nav_button_idle.png"
-                hover_background "gui/game_menu/nav_button_hover.png"
+                background button_idle
+                hover_background button_hover
 
                 if _in_replay:
                     action EndReplay(confirm=True)
                     text _("Завершить повтор"):
                         xalign 0.5
                         yalign 0.5
-                        size 30
+                        size (36 if phone_layout else 30)
                 else:
                     action MainMenu()
                     text _("Главное меню"):
                         xalign 0.5
                         yalign 0.5
-                        size 30
+                        size (36 if phone_layout else 30)
 
 
 
@@ -786,7 +785,7 @@ style main_menu_version:
 ## экран предназначен для использования с одним или несколькими дочерними
 ## элементами, которые трансклюдируются (помещаются) внутрь него.
 
-screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
+screen game_menu(title, scroll=None, yinitial=0.0, spacing=0, viewport_size=None):
 
     style_prefix "game_menu"
 
@@ -808,6 +807,8 @@ screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
 
                     viewport:
                         yinitial yinitial
+                        if viewport_size:
+                            xysize viewport_size
                         scrollbars "vertical"
                         mousewheel True
                         draggable True
@@ -1009,6 +1010,8 @@ screen load():
 screen file_slots(title):
 
     default page_name_value = FilePageNameInputValue(pattern=_("{} страница"), auto=_("Автосохранения"), quick=_("Быстрые сохранения"))
+    $ phone_layout = renpy.variant("small")
+    $ pages_per_group = 5 if phone_layout else 9
 
     use game_menu(title):
 
@@ -1039,9 +1042,10 @@ screen file_slots(title):
                 # xalign 0.5
                 # yalign 0.5
                 # ПК: начало контейнера (640, 260), сетка на экране (698, 250).
-                if renpy.variant("small"):
+                if phone_layout:
                     xalign 0.5
-                    yalign 0.5
+                    xoffset -64
+                    ypos 20
                 else:
                     xpos 58
                     ypos -10
@@ -1055,19 +1059,17 @@ screen file_slots(title):
                     button:
                         action FileAction(slot)
 
-                        # Было: if not renpy.variant("small") and not FileLoadable(slot):
-                        # ПК: одинаковый декоративный фон пустых и заполненных карточек.
-                        if not renpy.variant("small"):
-                            background "gui/file_slots/empty_slot_idle.png"
-                            hover_background "gui/file_slots/empty_slot_hover.png"
+                        xysize ((660, 350) if phone_layout else (500, 350))
+                        background ("gui/file_slots/empty_slot_phone_idle.png" if phone_layout else "gui/file_slots/empty_slot_idle.png")
+                        hover_background ("gui/file_slots/empty_slot_phone_hover.png" if phone_layout else "gui/file_slots/empty_slot_hover.png")
 
                         # Было: has vbox. Fixed позволяет привязать пустую подпись к низу карточки.
                         # Было: has fixed (без явного размера внутренней области).
                         has fixed:
                             # Размер карточки минус padding по 20 px с каждой стороны.
-                            xysize ((gui.slot_button_width - 40, gui.slot_button_height - 40) if renpy.variant("small") else (460, 310))
+                            xysize ((620, 310) if phone_layout else (460, 310))
 
-                        if not renpy.variant("small") and FileLoadable(slot):
+                        if not phone_layout and FileLoadable(slot):
                             # ПК: скриншот (50, 20) относительно карточки, размер 400x225.
                             add FileScreenshot(slot):
                                 xalign 0.5
@@ -1086,14 +1088,36 @@ screen file_slots(title):
                                 size 18
                                 color "#FFF1C1"
                                 hover_color "#FFF1C1"
+                        elif phone_layout:
+                            if FileLoadable(slot):
+                                vbox:
+                                    xalign 0.5
+                                    spacing 4
+
+                                    add FileScreenshot(slot):
+                                        xalign 0.5
+                                        xysize (400, 225)
+
+                                    text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M")):
+                                        style "slot_time_text"
+                                        xalign 0.5
+                                        xsize 600
+                                        textalign 0.5
+                                        yoffset 0
+
+                                    text FileSaveName(slot):
+                                        style "slot_name_text"
+                                        xalign 0.5
+                                        xsize 600
+                                        textalign 0.5
+                                        yoffset 0
                         else:
                             # Прежняя компоновка пустых слотов и мобильного варианта.
                             vbox:
                                 # Было: add FileScreenshot(slot) xalign 0.5
                                 add FileScreenshot(slot):
                                     xalign 0.5
-                                    if not renpy.variant("small"):
-                                        xysize (400, 225)
+                                    xysize (400, 225)
 
                                 if FileLoadable(slot):
                                     text FileTime(slot, format=_("{#file_time}%A, %d %B %Y, %H:%M"), empty=_("Пустой слот")):
@@ -1120,10 +1144,13 @@ screen file_slots(title):
                 style_prefix "page"
 
                 xalign 0.5
-                yalign 1.0
-
-                xoffset -80
-                yoffset -250
+                if phone_layout:
+                    xoffset -64
+                    ypos 780
+                else:
+                    yalign 1.0
+                    xoffset -80
+                    yoffset -250
 
                 hbox:
                     xalign 0.5
@@ -1151,11 +1178,9 @@ screen file_slots(title):
                     # Для автоматических и быстрых сохранений показываем первую группу.
                     $ page_number = int(current_page) if str(current_page).isdigit() else 1
 
-                    # Вычисляем начало группы из 9 страниц.
-                    $ first_page = ((page_number - 1) // 9) * 9 + 1
+                    $ first_page = ((page_number - 1) // pages_per_group) * pages_per_group + 1
 
-                    # Отображаем 9 последовательных страниц.
-                    for page in range(first_page, first_page + 9):
+                    for page in range(first_page, first_page + pages_per_group):
                         textbutton "[page]" action FilePage(page)
 
                     textbutton _(">") action FilePageNext()
@@ -1226,9 +1251,7 @@ style page_button_text:
 
 style slot_button:
     properties gui.button_properties("slot_button")
-    # Общие gui.slot_button_width/height сохранены для мобильного варианта.
-    xsize (gui.slot_button_width if renpy.variant("small") else 500)
-    ysize (gui.slot_button_height if renpy.variant("small") else 350)
+    xysize (500, 350)
 
 style slot_button_text:
     properties gui.text_properties("slot_button")
@@ -1256,7 +1279,7 @@ screen preferences():
 
     tag menu
 
-    use game_menu(_("Настройки"), scroll="viewport"):
+    use game_menu(_("Настройки"), scroll="viewport", viewport_size=(1560, 900) if renpy.variant("small") else None):
 
         vbox:
 
@@ -2121,14 +2144,6 @@ style window:
     variant "small"
     background "gui/phone/textbox.png"
 
-style radio_button:
-    variant "small"
-    foreground "gui/phone/button/radio_[prefix_]foreground.png"
-
-style check_button:
-    variant "small"
-    foreground "gui/phone/button/check_[prefix_]foreground.png"
-
 style nvl_window:
     variant "small"
     background "gui/phone/nvl.png"
@@ -2136,10 +2151,6 @@ style nvl_window:
 style main_menu_frame:
     variant "small"
     background "gui/phone/overlay/main_menu.png"
-
-style game_menu_outer_frame:
-    variant "small"
-    background "gui/phone/overlay/game_menu.png"
 
 style game_menu_navigation_frame:
     variant "small"
