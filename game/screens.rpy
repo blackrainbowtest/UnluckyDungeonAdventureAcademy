@@ -552,6 +552,17 @@ init python:
         else:
             renpy.music.play(menu_music_tracks, channel="music", loop=True, fadeout=0)
 
+    def menu_music_start():
+        renpy.music.play(menu_music_tracks, channel="music", loop=True, if_changed=True)
+
+    def menu_music_stop():
+        queued = renpy.music.get_loop(channel="music") or []
+        if menu_music_current() in menu_music_tracks or any(track in menu_music_tracks for track in queued):
+            renpy.music.stop(channel="music", fadeout=0)
+
+    config.start_callbacks.append(menu_music_stop)
+    config.after_load_callbacks.append(menu_music_stop)
+
 
 screen main_menu():
 
@@ -561,8 +572,10 @@ screen main_menu():
     add "gui/main_menu/background.png"
 
     default music_seek_value = MenuMusicSeekValue()
-    on "hide" action Function(music_seek_value.cancel)
-    on "replaced" action Function(music_seek_value.cancel)
+    on "show" action Function(menu_music_start)
+    on "replace" action Function(menu_music_start)
+    on "hide" action [Function(music_seek_value.cancel), Function(menu_music_stop)]
+    on "replaced" action [Function(music_seek_value.cancel), Function(menu_music_stop)]
 
     # Над неизменёнными кнопками (их верхняя граница Y=1260).
     bar:

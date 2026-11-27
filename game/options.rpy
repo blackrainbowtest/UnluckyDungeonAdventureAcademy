@@ -70,7 +70,6 @@ define menu_music_tracks = [
     "audio/music/main_menu/menu_track_02.ogg",
     "audio/music/main_menu/menu_track_03.ogg",
 ]
-define config.main_menu_music = menu_music_tracks
 ## menu_track_01.ogg
 ## menu_track_02.ogg
 ## menu_track_03.ogg
